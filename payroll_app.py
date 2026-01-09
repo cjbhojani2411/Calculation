@@ -95,18 +95,18 @@ if run_btn:
     # ]
 
     script_path = Path(__file__).with_name("build_master_workbook_v6.py").resolve()
-if not script_path.exists():
-    st.error(f"Payroll script not found: {script_path}")
-    st.stop()
-
-cmd = [
-    sys.executable, str(script_path),
-    "--toptracker", tt_path,
-    "--resource", res_path,
-    "--leave", lv_path,
-    "--attendance", att_path,
-    "--output_dir", output_dir,
-]
+    if not script_path.exists():
+        st.error(f"Payroll script not found: {script_path}")
+        st.stop()
+    
+    cmd = [
+        sys.executable, str(script_path),
+        "--toptracker", tt_path,
+        "--resource", res_path,
+        "--leave", lv_path,
+        "--attendance", att_path,
+        "--output_dir", output_dir,
+    ]
 
 
     with st.spinner("Running payroll engine..."):
