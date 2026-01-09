@@ -79,7 +79,7 @@ if run_btn:
     lv_path = save_upload(leave, uploads_dir)
     att_path = save_upload(attendance, uploads_dir)
 
-    script_path = os.path.abspath("build_master_workbook_v6.py")
+    script_path = str(Path(__file__).resolve().with_name("build_master_workbook_v6.py"))
     if not os.path.exists(script_path):
         st.error(f"Payroll script not found: {script_path}")
         st.stop()

@@ -5,31 +5,60 @@ import pandas as pd
 from datetime import date, timedelta
 
 # =========================
-# CONFIG (UPDATE PATHS)
+# CONFIG (DEFAULTS)
 # =========================
-TOPTRACKER_FILE  = "/Users/pardypanda/Documents/PPS/source/toptracker_2025_12_31_01_29.csv"
-LEAVE_FILE       = "/Users/pardypanda/Documents/PPS/source/Leave View.xls"
-RESOURCE_FILE    = "/Users/pardypanda/Documents/PPS/source/Resource_availability.csv"
+# NOTE:
+# - These defaults keep backward compatibility if you run this script directly.
+# - When running via payroll_app.py, pass CLI args to make paths dynamic.
+
+DEFAULT_TOPTRACKER_FILE  = "/Users/pardypanda/Documents/PPS/Salary Calculation/source/toptracker_2025_12_31_01_29.csv"
+DEFAULT_LEAVE_FILE       = "/Users/pardypanda/Documents/PPS/Salary Calculation/source/Leave View.xls"
+DEFAULT_RESOURCE_FILE    = "/Users/pardypanda/Documents/PPS/Salary Calculation/source/Resource_availability.csv"
 
 # ✅ NEW: biometric attendance file (monthinout)
-ATTENDANCE_FILE  = "/Users/pardypanda/Documents/PPS/source/monthinout02012026154043.xls"
+DEFAULT_ATTENDANCE_FILE  = "/Users/pardypanda/Documents/PPS/Salary Calculation/source/monthinout02012026154043.xls"
 
-OUTPUT_FINAL = "/Users/pardypanda/Documents/PPS/Output/monthly_payroll_summary.csv"
+DEFAULT_OUTPUT_DIR       = "/Users/pardypanda/Documents/PPS/Salary Calculation/Output"
 
-OUTPUT_WORKING_CALENDAR = "/Users/pardypanda/Documents/PPS/Output/_debug_working_calendar.csv"
-OUTPUT_TOPTRACKER_MONTH = "/Users/pardypanda/Documents/PPS/Output/_debug_toptracker_monthly.csv"
-OUTPUT_LEAVE_MONTH      = "/Users/pardypanda/Documents/PPS/Output/_debug_leave_monthly.csv"
+def _parse_args():
+    import argparse
+
+    p = argparse.ArgumentParser(description="Build monthly payroll summary + debug outputs.")
+    p.add_argument("--toptracker", dest="toptracker_file", default=DEFAULT_TOPTRACKER_FILE, help="TopTracker CSV path")
+    p.add_argument("--leave", dest="leave_file", default=DEFAULT_LEAVE_FILE, help="Leave View XLS/XLSX path")
+    p.add_argument("--resource", dest="resource_file", default=DEFAULT_RESOURCE_FILE, help="Resource availability CSV path")
+    p.add_argument("--attendance", dest="attendance_file", default=DEFAULT_ATTENDANCE_FILE, help="Biometric monthinout XLS/XLSX path")
+    p.add_argument("--output_dir", dest="output_dir", default=DEFAULT_OUTPUT_DIR, help="Folder to write outputs/debug files")
+    return p.parse_args()
+
+_args = _parse_args()
+
+TOPTRACKER_FILE  = _args.toptracker_file
+LEAVE_FILE       = _args.leave_file
+RESOURCE_FILE    = _args.resource_file
+ATTENDANCE_FILE  = _args.attendance_file
+
+# Output file names must remain the same; only the folder becomes dynamic.
+OUTPUT_DIR = os.path.abspath(os.path.expanduser(_args.output_dir))
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+OUTPUT_FINAL = os.path.join(OUTPUT_DIR, "monthly_payroll_summary.csv")
+
+OUTPUT_WORKING_CALENDAR = os.path.join(OUTPUT_DIR, "_debug_working_calendar.csv")
+OUTPUT_TOPTRACKER_MONTH = os.path.join(OUTPUT_DIR, "_debug_toptracker_monthly.csv")
+OUTPUT_LEAVE_MONTH      = os.path.join(OUTPUT_DIR, "_debug_leave_monthly.csv")
 
 # ✅ NEW: biometric debug outputs
-OUTPUT_BIOMETRIC_DAILY  = "/Users/pardypanda/Documents/PPS/Output/_debug_biometric_daily.csv"
-OUTPUT_BIOMETRIC_MONTH  = "/Users/pardypanda/Documents/PPS/Output/_debug_biometric_monthly.csv"
+OUTPUT_BIOMETRIC_DAILY  = os.path.join(OUTPUT_DIR, "_debug_biometric_daily.csv")
+OUTPUT_BIOMETRIC_MONTH  = os.path.join(OUTPUT_DIR, "_debug_biometric_monthly.csv")
 
 # NEW: name mismatch + alias files (TopTracker has no PPS code, so we map names -> PPS)
-ALIASES_FILE           = "/Users/pardypanda/Documents/PPS/Output/_name_aliases.csv"
-OUTPUT_NAME_MISMATCH   = "/Users/pardypanda/Documents/PPS/Output/_debug_name_mismatch.csv"
+ALIASES_FILE           = os.path.join(OUTPUT_DIR, "_name_aliases.csv")
+OUTPUT_NAME_MISMATCH   = os.path.join(OUTPUT_DIR, "_debug_name_mismatch.csv")
 FUZZY_THRESHOLD        = 0.86  # safe default (0.0 - 1.0)
 
 HOURS_PER_DAY = 8
+
 
 # =========================
 # EXCLUSIONS (case-insensitive)
