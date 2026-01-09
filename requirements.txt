@@ -1,7 +1,7 @@
 streamlit
 pandas
-numpy>=1.26
-xlrd==2.0.1
+numpy
+xlrd
 openpyxl
 python-dateutil
 pytz
