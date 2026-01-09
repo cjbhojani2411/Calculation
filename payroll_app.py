@@ -2,6 +2,7 @@ import os
 import subprocess
 import streamlit as st
 from pathlib import Path
+import sys  # add near imports
 
 st.set_page_config(page_title="Payroll Builder", layout="wide")
 
@@ -79,19 +80,34 @@ if run_btn:
     lv_path = save_upload(leave, uploads_dir)
     att_path = save_upload(attendance, uploads_dir)
 
-    script_path = str(Path(__file__).resolve().with_name("build_master_workbook_v6.py"))
-    if not os.path.exists(script_path):
-        st.error(f"Payroll script not found: {script_path}")
-        st.stop()
+    # script_path = str(Path(__file__).resolve().with_name("build_master_workbook_v6.py"))
+    # if not os.path.exists(script_path):
+    #     st.error(f"Payroll script not found: {script_path}")
+    #     st.stop()
 
-    cmd = [
-        "python", script_path,
-        "--toptracker", tt_path,
-        "--resource", res_path,
-        "--leave", lv_path,
-        "--attendance", att_path,
-        "--output_dir", output_dir,
-    ]
+    # cmd = [
+    #     "python", script_path,
+    #     "--toptracker", tt_path,
+    #     "--resource", res_path,
+    #     "--leave", lv_path,
+    #     "--attendance", att_path,
+    #     "--output_dir", output_dir,
+    # ]
+
+    script_path = Path(__file__).with_name("build_master_workbook_v6.py").resolve()
+if not script_path.exists():
+    st.error(f"Payroll script not found: {script_path}")
+    st.stop()
+
+cmd = [
+    sys.executable, str(script_path),
+    "--toptracker", tt_path,
+    "--resource", res_path,
+    "--leave", lv_path,
+    "--attendance", att_path,
+    "--output_dir", output_dir,
+]
+
 
     with st.spinner("Running payroll engine..."):
         proc = subprocess.run(cmd, capture_output=True, text=True)
